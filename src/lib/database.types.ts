@@ -24,6 +24,8 @@ export type Property = {
   notes: string | null;
   visibility: PropertyVisibility;
   analyzed_at: string | null;
+  created_by?: string | null;
+  updated_by?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -39,6 +41,7 @@ export type PropertyDocument = {
   original_filename: string;
   mime_type: string;
   file_size: number | null;
+  created_by?: string | null;
   created_at: string;
 };
 
@@ -49,6 +52,8 @@ export type AnalysisJob = {
   extracted_payload: Json | null;
   error_message: string | null;
   approved_property_id: string | null;
+  requested_by?: string | null;
+  approved_by?: string | null;
   created_at: string;
   updated_at: string;
   completed_at: string | null;
@@ -61,6 +66,17 @@ export type Profile = {
   role: UserRole;
   created_at: string;
   updated_at: string;
+};
+
+export type AuditLog = {
+  id: string;
+  actor_id: string | null;
+  action: string;
+  entity_type: string;
+  entity_id: string | null;
+  before_data: Json | null;
+  after_data: Json | null;
+  created_at: string;
 };
 
 export type Database = {
@@ -85,6 +101,11 @@ export type Database = {
         Row: Profile;
         Insert: Partial<Profile> & Pick<Profile, 'id' | 'email'>;
         Update: Partial<Profile>;
+      };
+      audit_logs: {
+        Row: AuditLog;
+        Insert: Partial<AuditLog> & Pick<AuditLog, 'action' | 'entity_type'>;
+        Update: Partial<AuditLog>;
       };
     };
     Views: Record<string, never>;
