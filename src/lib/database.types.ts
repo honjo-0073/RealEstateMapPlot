@@ -24,11 +24,14 @@ export type Property = {
   notes: string | null;
   visibility: PropertyVisibility;
   analyzed_at: string | null;
-  created_by?: string | null;
-  updated_by?: string | null;
+  created_by: string | null;
+  updated_by: string | null;
   created_at: string;
   updated_at: string;
 };
+
+export type PropertyInsert = Partial<Omit<Property, 'id' | 'created_at' | 'updated_at'>> & Pick<Property, 'name' | 'address'>;
+export type PropertyUpdate = Partial<Omit<Property, 'id' | 'created_at' | 'updated_at'>>;
 
 export type PropertyDocument = {
   id: string;
@@ -41,9 +44,12 @@ export type PropertyDocument = {
   original_filename: string;
   mime_type: string;
   file_size: number | null;
-  created_by?: string | null;
+  created_by: string | null;
   created_at: string;
 };
+
+export type PropertyDocumentInsert = Partial<Omit<PropertyDocument, 'id' | 'created_at'>> & Pick<PropertyDocument, 'source' | 'original_filename'>;
+export type PropertyDocumentUpdate = Partial<Omit<PropertyDocument, 'id' | 'created_at'>>;
 
 export type AnalysisJob = {
   id: string;
@@ -52,12 +58,15 @@ export type AnalysisJob = {
   extracted_payload: Json | null;
   error_message: string | null;
   approved_property_id: string | null;
-  requested_by?: string | null;
-  approved_by?: string | null;
+  requested_by: string | null;
+  approved_by: string | null;
   created_at: string;
   updated_at: string;
   completed_at: string | null;
 };
+
+export type AnalysisJobInsert = Partial<Omit<AnalysisJob, 'id' | 'created_at' | 'updated_at'>>;
+export type AnalysisJobUpdate = Partial<Omit<AnalysisJob, 'id' | 'created_at' | 'updated_at'>>;
 
 export type Profile = {
   id: string;
@@ -79,33 +88,40 @@ export type AuditLog = {
   created_at: string;
 };
 
+export type AuditLogInsert = Partial<Omit<AuditLog, 'id' | 'created_at'>> & Pick<AuditLog, 'action' | 'entity_type'>;
+
 export type Database = {
   public: {
     Tables: {
       properties: {
         Row: Property;
-        Insert: Partial<Property> & Pick<Property, 'name' | 'address'>;
-        Update: Partial<Property>;
+        Insert: PropertyInsert;
+        Update: PropertyUpdate;
+        Relationships: [];
       };
       property_documents: {
         Row: PropertyDocument;
-        Insert: Partial<PropertyDocument> & Pick<PropertyDocument, 'source' | 'original_filename'>;
-        Update: Partial<PropertyDocument>;
+        Insert: PropertyDocumentInsert;
+        Update: PropertyDocumentUpdate;
+        Relationships: [];
       };
       analysis_jobs: {
         Row: AnalysisJob;
-        Insert: Partial<AnalysisJob>;
-        Update: Partial<AnalysisJob>;
+        Insert: AnalysisJobInsert;
+        Update: AnalysisJobUpdate;
+        Relationships: [];
       };
       profiles: {
         Row: Profile;
         Insert: Partial<Profile> & Pick<Profile, 'id' | 'email'>;
         Update: Partial<Profile>;
+        Relationships: [];
       };
       audit_logs: {
         Row: AuditLog;
-        Insert: Partial<AuditLog> & Pick<AuditLog, 'action' | 'entity_type'>;
+        Insert: AuditLogInsert;
         Update: Partial<AuditLog>;
+        Relationships: [];
       };
     };
     Views: Record<string, never>;
@@ -131,5 +147,6 @@ export type Database = {
       document_source: DocumentSource;
       analysis_job_status: AnalysisJobStatus;
     };
+    CompositeTypes: Record<string, never>;
   };
 };
