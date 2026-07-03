@@ -3,6 +3,12 @@ import { createServerClient } from '@supabase/ssr';
 
 import { env } from '@/lib/env';
 
+type CookieToSet = {
+  name: string;
+  value: string;
+  options?: any;
+};
+
 export async function middleware(request: NextRequest) {
   if (!env.supabaseUrl || !env.supabaseAnonKey) {
     return NextResponse.next({ request });
@@ -14,7 +20,7 @@ export async function middleware(request: NextRequest) {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet: CookieToSet[]) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
         cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
