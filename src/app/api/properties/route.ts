@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+import type { Property } from '@/lib/database.types';
 import { isSupabaseConfigured } from '@/lib/env';
 import { filterSeedProperties, priceRangeToBounds, toNumber } from '@/lib/property-filters';
 import { seedProperties } from '@/lib/seed-properties';
@@ -66,7 +67,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const rows = bounds.unknownOnly ? (data ?? []).filter((property) => property.price_amount_yen === null) : data ?? [];
+  const properties = (data ?? []) as Property[];
+  const rows = bounds.unknownOnly ? properties.filter((property: Property) => property.price_amount_yen === null) : properties;
   return NextResponse.json({ data: rows, source: 'supabase' });
 }
 
