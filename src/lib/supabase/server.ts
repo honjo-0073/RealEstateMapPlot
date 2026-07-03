@@ -8,7 +8,7 @@ import { env } from '@/lib/env';
 type CookieToSet = {
   name: string;
   value: string;
-  options?: Parameters<ReturnType<Awaited<typeof cookies>['set']>>[2];
+  options?: Record<string, unknown>;
 };
 
 export async function createSupabaseServerClient() {
