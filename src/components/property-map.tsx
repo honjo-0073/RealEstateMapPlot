@@ -1,6 +1,7 @@
 'use client';
 
 import L from 'leaflet';
+import { useEffect } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 
 import type { Property } from '@/lib/database.types';
@@ -10,9 +11,13 @@ const defaultCenter: [number, number] = [34.705, 135.505];
 
 function FlyToProperty({ property }: { property: Property | null }) {
   const map = useMap();
-  if (property?.latitude && property.longitude) {
-    map.flyTo([property.latitude, property.longitude], 14, { duration: 0.6 });
-  }
+
+  useEffect(() => {
+    if (property?.latitude !== null && property?.latitude !== undefined && property.longitude !== null && property.longitude !== undefined) {
+      map.flyTo([property.latitude, property.longitude], 14, { duration: 0.6 });
+    }
+  }, [map, property]);
+
   return null;
 }
 
