@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { Building2, ExternalLink, FileUp, Filter, LockKeyhole, MapPin, Search, ShieldCheck } from 'lucide-react';
+import { Building2, ExternalLink, FileUp, Filter, Info, List, LockKeyhole, MapPin, Search, ShieldCheck, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import type { Property } from '@/lib/database.types';
@@ -18,6 +18,8 @@ type PropertyResponse = {
   source: 'seed' | 'supabase' | 'unconfigured';
 };
 
+type MobilePanel = 'list' | 'detail' | null;
+
 export function PropertyDashboard() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -25,6 +27,7 @@ export function PropertyDashboard() {
   const [price, setPrice] = useState('all');
   const [source, setSource] = useState<PropertyResponse['source']>('seed');
   const [loading, setLoading] = useState(true);
+  const [mobilePanel, setMobilePanel] = useState<MobilePanel>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -55,9 +58,25 @@ export function PropertyDashboard() {
     };
   }, [properties]);
 
+  const handleSelectProperty = (property: Property) => {
+    setSelectedProperty(property);
+    setMobilePanel('detail');
+  };
+
+  const toggleMobilePanel = (panel: Exclude<MobilePanel, null>) => {
+    setMobilePanel((current) => (current === panel ? null : panel));
+  };
+
   return (
     <main className="app-shell">
-      <aside className="sidebar">
+      <aside id="property-list-panel" className={mobilePanel === 'list' ? 'sidebar mobile-panel mobile-panel-open' : 'sidebar mobile-panel'}>
+        <div className="mobile-panel-header">
+          <span>検索・物件一覧</span>
+          <button type="button" className="mobile-panel-close" onClick={() => setMobilePanel(null)} aria-label="パネルを閉じる">
+            <X size={18} />
+          </button>
+        </div>
+
         <div className="brand-row">
           <div className="brand-icon"><MapPin size={22} /></div>
           <div>
@@ -112,7 +131,7 @@ export function PropertyDashboard() {
               type="button"
               key={property.id}
               className={selectedProperty?.id === property.id ? 'property-row selected' : 'property-row'}
-              onClick={() => setSelectedProperty(property)}
+              onClick={() => handleSelectProperty(property)}
             >
               <span className="row-title">{property.name}</span>
               <span className="row-meta"><Building2 size={14} />{property.address}</span>
@@ -126,11 +145,38 @@ export function PropertyDashboard() {
       </aside>
 
       <section className="map-area">
-        <PropertyMap properties={properties} selectedProperty={selectedProperty} onSelect={setSelectedProperty} />
+        <PropertyMap properties={properties} selectedProperty={selectedProperty} onSelect={handleSelectProperty} />
+        <div className="mobile-map-controls" aria-label="スマートフォン用表示切替">
+          <button
+            type="button"
+            className={mobilePanel === 'list' ? 'active' : undefined}
+            onClick={() => toggleMobilePanel('list')}
+            aria-expanded={mobilePanel === 'list'}
+            aria-controls="property-list-panel"
+          >
+            <List size={17} />一覧
+          </button>
+          <button
+            type="button"
+            className={mobilePanel === 'detail' ? 'active' : undefined}
+            onClick={() => toggleMobilePanel('detail')}
+            aria-expanded={mobilePanel === 'detail'}
+            aria-controls="property-detail-panel"
+            disabled={!selectedProperty}
+          >
+            <Info size={17} />詳細
+          </button>
+        </div>
         <Link href="/documents/new" className="upload-action"><FileUp size={18} />PDF追加</Link>
       </section>
 
-      <aside className="detail-panel" aria-label="物件詳細">
+      <aside id="property-detail-panel" className={mobilePanel === 'detail' ? 'detail-panel mobile-panel mobile-panel-open' : 'detail-panel mobile-panel'} aria-label="物件詳細">
+        <div className="mobile-panel-header">
+          <span>物件詳細</span>
+          <button type="button" className="mobile-panel-close" onClick={() => setMobilePanel(null)} aria-label="パネルを閉じる">
+            <X size={18} />
+          </button>
+        </div>
         {selectedProperty ? <PropertyDetail property={selectedProperty} /> : <div className="empty-state">物件を選択してください</div>}
       </aside>
     </main>
