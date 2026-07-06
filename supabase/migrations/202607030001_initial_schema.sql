@@ -18,6 +18,7 @@ create table public.profiles (
 create table public.properties (
   id uuid primary key default gen_random_uuid(),
   source_google_sheet_row_id text,
+  business_item_registrant_name text,
   name text not null,
   asset_type text,
   address text not null,
