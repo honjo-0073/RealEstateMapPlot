@@ -11,6 +11,7 @@ type FormState = ExtractedPropertyPayload;
 
 const emptyState: FormState = {
   name: '',
+  business_item_registrant_name: null,
   asset_type: '戸建/ビル',
   address: '',
   price_amount_yen: null,
@@ -81,6 +82,7 @@ export function AnalysisReviewForm({ jobId }: { jobId: string }) {
 
       <form className="form-grid" onSubmit={approve}>
         <label>物件名<input value={form.name} onChange={(event) => update('name', event.target.value)} required /></label>
+        <label>業務項目の登録者名<input value={form.business_item_registrant_name ?? ''} onChange={(event) => update('business_item_registrant_name', event.target.value || null)} /></label>
         <label>住所<input value={form.address} onChange={(event) => update('address', event.target.value)} required /></label>
         <label>種別<input value={form.asset_type ?? ''} onChange={(event) => update('asset_type', event.target.value || null)} /></label>
         <label>価格<input type="number" value={form.price_amount_yen ?? ''} onChange={(event) => update('price_amount_yen', event.target.value ? Number(event.target.value) : null)} /></label>

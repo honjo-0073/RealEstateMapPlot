@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 const approveSchema = z.object({
   name: z.string().min(1),
+  business_item_registrant_name: z.string().optional().nullable(),
   asset_type: z.string().optional().nullable(),
   address: z.string().min(1),
   price_amount_yen: z.number().int().nonnegative().optional().nullable(),

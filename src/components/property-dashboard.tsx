@@ -198,6 +198,7 @@ function PropertyDetail({ property }: { property: Property }) {
 
       <dl className="detail-list">
         <div><dt>住所</dt><dd>{property.address}</dd></div>
+        <div><dt>業務項目の登録者名</dt><dd>{property.business_item_registrant_name ?? '未設定'}</dd></div>
         <div><dt>価格</dt><dd>{formatPrice(property.price_amount_yen)}</dd></div>
         <div><dt>土地面積</dt><dd>{property.land_area_sqm ? `${property.land_area_sqm.toLocaleString('ja-JP')}㎡` : '未設定'}</dd></div>
         <div><dt>延床面積</dt><dd>{property.floor_area_sqm ? `${property.floor_area_sqm.toLocaleString('ja-JP')}㎡` : '未設定'}</dd></div>
