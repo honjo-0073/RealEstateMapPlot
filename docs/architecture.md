@@ -28,9 +28,18 @@ flowchart LR
 
 ## 認証と権限
 
-Supabase Authのメール/パスワード認証を使います。新規ユーザーは `external_viewer` として作成され、管理者が必要に応じて `admin`, `editor`, `viewer` に変更します。
+Supabase Authのメール/パスワード認証を使います。本番は招待制運用とし、公開サインアップは無効化します。ユーザー追加は管理者がSupabase AuthのInvite user機能、またはSQL Editorで確認済みユーザーを作成する手順に限定します。
 
-RLSにより、社外ユーザーは `properties.visibility = 'external'` の物件だけ閲覧できます。
+ロールは `profiles.role` の `admin`, `editor`, `viewer`, `external_viewer` で表します。招待直後はデフォルトの `external_viewer` になるため、管理者が業務に必要な最小権限へ昇格します。
+
+| ロール | 想定利用者 | 主な権限 |
+| --- | --- | --- |
+| `admin` | 運用管理者 | 全操作、権限変更、初期インポート、削除、監査ログ確認 |
+| `editor` | 仕入担当者 | 物件登録/編集、PDFアップロード、AI解析、解析承認 |
+| `viewer` | 社内閲覧者 | 社内物件を含む閲覧中心 |
+| `external_viewer` | 招待済み外部関係者 | 外部関係者向けの表示ラベル |
+
+RLSは招待制を前提に緩和済みで、ログイン済みユーザーは物件閲覧、PDF参照、PDFアップロード、解析ジョブ作成、物件登録/編集に必要なアクセスを持ちます。`properties.visibility` は「社内限定」「社外可」の業務上の共有区分として保持し、ロール付与と共有可否の最終判断は運用で管理します。
 
 ## PDF解析
 
