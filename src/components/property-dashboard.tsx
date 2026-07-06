@@ -50,10 +50,12 @@ export function PropertyDashboard() {
 
   const summary = useMemo(() => {
     const priced = properties.filter((property) => property.price_amount_yen !== null);
+    const unpositioned = properties.filter((property) => property.latitude === null || property.longitude === null);
     const total = priced.reduce((sum, property) => sum + (property.price_amount_yen ?? 0), 0);
     return {
       count: properties.length,
       pricedCount: priced.length,
+      unpositionedCount: unpositioned.length,
       total
     };
   }, [properties]);
@@ -121,6 +123,10 @@ export function PropertyDashboard() {
             <span>総額</span>
             <strong>{formatPrice(summary.total || null)}</strong>
           </div>
+          <div>
+            <span>位置未設定</span>
+            <strong>{summary.unpositionedCount}</strong>
+          </div>
         </section>
 
         <section className="property-list" aria-label="物件一覧">
@@ -139,6 +145,7 @@ export function PropertyDashboard() {
                 <strong>{formatPrice(property.price_amount_yen)}</strong>
                 <em>{property.transaction_type ?? '未設定'}</em>
               </span>
+              {property.latitude === null || property.longitude === null ? <span className="row-warning"><MapPin size={13} />位置未設定</span> : null}
             </button>
           ))}
         </section>
@@ -184,6 +191,8 @@ export function PropertyDashboard() {
 }
 
 function PropertyDetail({ property }: { property: Property }) {
+  const hasCoordinates = property.latitude !== null && property.longitude !== null;
+
   return (
     <div className="detail-content">
       <div className="detail-heading">
@@ -207,6 +216,7 @@ function PropertyDetail({ property }: { property: Property }) {
         <div><dt>建ぺい/容積</dt><dd>{property.coverage_ratio_raw ?? '未設定'}</dd></div>
         <div><dt>接道</dt><dd>{property.road_access ?? '未設定'}</dd></div>
         <div><dt>取引態様</dt><dd>{property.transaction_type ?? '未設定'}</dd></div>
+        <div><dt>位置情報</dt><dd>{hasCoordinates ? `${property.latitude}, ${property.longitude}` : '未設定（地図には表示されません）'}</dd></div>
       </dl>
 
       <section className="notes-block">
@@ -216,9 +226,11 @@ function PropertyDetail({ property }: { property: Property }) {
 
       <div className="detail-actions">
         <Link href={`/properties/${property.id}`} className="secondary-action">詳細編集</Link>
-        <a href={`https://www.google.com/maps?q=${property.latitude},${property.longitude}`} target="_blank" rel="noreferrer" className="secondary-action">
-          <ExternalLink size={16} />地図で開く
-        </a>
+        {hasCoordinates ? (
+          <a href={`https://www.google.com/maps?q=${property.latitude},${property.longitude}`} target="_blank" rel="noreferrer" className="secondary-action">
+            <ExternalLink size={16} />地図で開く
+          </a>
+        ) : <span className="secondary-action disabled-action"><MapPin size={16} />位置未設定</span>}
       </div>
     </div>
   );

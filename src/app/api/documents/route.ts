@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { analyzePropertyPdf } from '@/lib/gemini';
+import { fillCoordinatesIfMissing } from '@/lib/geocoding';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
   if (jobResult.error) return NextResponse.json({ error: jobResult.error.message }, { status: 400 });
 
   try {
-    const extracted = await analyzePropertyPdf(file);
+    const extracted = await fillCoordinatesIfMissing(await analyzePropertyPdf(file));
     const updated = await supabase
       .from('analysis_jobs')
       .update({ status: 'review_required', extracted_payload: extracted })
