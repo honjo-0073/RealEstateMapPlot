@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Save } from 'lucide-react';
+import { MapPin, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import type { Property } from '@/lib/database.types';
@@ -11,6 +11,7 @@ export function PropertyEditForm({ propertyId }: { propertyId: string }) {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
 
   useEffect(() => {
     fetch(`/api/properties/${propertyId}`)
@@ -23,6 +24,33 @@ export function PropertyEditForm({ propertyId }: { propertyId: string }) {
     setProperty((current) => (current ? { ...current, [key]: value } : current));
   }
 
+  async function fillCoordinatesFromAddress() {
+    if (!property) return;
+    setMessage('');
+    setError('');
+    if (!property.address.trim()) {
+      setError('住所を入力してから緯度経度を取得してください。');
+      return;
+    }
+
+    setGeocoding(true);
+    try {
+      const response = await fetch('/api/geocode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: property.address })
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? '緯度経度の取得に失敗しました。');
+      setProperty((current) => (current ? { ...current, latitude: payload.data.latitude, longitude: payload.data.longitude } : current));
+      setMessage(`緯度経度を取得しました${payload.data.matchedAddress ? `（${payload.data.matchedAddress}）` : ''}。保存すると地図へ反映されます。`);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : '緯度経度の取得に失敗しました。');
+    } finally {
+      setGeocoding(false);
+    }
+  }
+
   async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!property) return;
@@ -32,6 +60,8 @@ export function PropertyEditForm({ propertyId }: { propertyId: string }) {
 
     const payload = {
       name: property.name,
+      business_item_registrant_name: property.business_item_registrant_name,
+      business_item_editor_name: property.business_item_editor_name,
       asset_type: property.asset_type,
       address: property.address,
       price_amount_yen: property.price_amount_yen,
@@ -75,11 +105,19 @@ export function PropertyEditForm({ propertyId }: { propertyId: string }) {
       <p>物件情報を更新すると監査ログに変更履歴が残ります。</p>
       <form className="form-grid" onSubmit={save}>
         <label>物件名<input value={property.name} onChange={(event) => update('name', event.target.value)} required /></label>
+        <label>業務項目の登録者名<input value={property.business_item_registrant_name ?? ''} onChange={(event) => update('business_item_registrant_name', event.target.value || null)} /></label>
+        <label>業務項目の編集者名<input value={property.business_item_editor_name ?? ''} onChange={(event) => update('business_item_editor_name', event.target.value || null)} /></label>
         <label>住所<input value={property.address} onChange={(event) => update('address', event.target.value)} required /></label>
         <label>種別<input value={property.asset_type ?? ''} onChange={(event) => update('asset_type', event.target.value || null)} /></label>
         <label>価格<input type="number" value={property.price_amount_yen ?? ''} onChange={(event) => update('price_amount_yen', event.target.value ? Number(event.target.value) : null)} /></label>
         <label>用途地域<input value={property.zoning ?? ''} onChange={(event) => update('zoning', event.target.value || null)} /></label>
         <label>接道<input value={property.road_access ?? ''} onChange={(event) => update('road_access', event.target.value || null)} /></label>
+        <label>緯度<input type="number" step="0.000001" value={property.latitude ?? ''} onChange={(event) => update('latitude', event.target.value ? Number(event.target.value) : null)} /></label>
+        <label>経度<input type="number" step="0.000001" value={property.longitude ?? ''} onChange={(event) => update('longitude', event.target.value ? Number(event.target.value) : null)} /></label>
+        <button className="secondary-action inline-form-action" type="button" onClick={fillCoordinatesFromAddress} disabled={geocoding}>
+          <MapPin size={16} />{geocoding ? '取得中' : '住所から緯度経度を取得'}
+        </button>
+        {property.latitude === null || property.longitude === null ? <p className="message warning-message">緯度経度が未設定です。この物件は地図にプロットされません。</p> : null}
         <label>公開範囲
           <select value={property.visibility} onChange={(event) => update('visibility', event.target.value as Property['visibility'])}>
             <option value="internal">社内限定</option>

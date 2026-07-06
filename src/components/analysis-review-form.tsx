@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Save } from 'lucide-react';
+import { MapPin, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import type { AnalysisJob } from '@/lib/database.types';
@@ -11,6 +11,8 @@ type FormState = ExtractedPropertyPayload;
 
 const emptyState: FormState = {
   name: '',
+  business_item_registrant_name: null,
+  business_item_editor_name: null,
   asset_type: '戸建/ビル',
   address: '',
   price_amount_yen: null,
@@ -31,6 +33,7 @@ export function AnalysisReviewForm({ jobId }: { jobId: string }) {
   const [job, setJob] = useState<AnalysisJob | null>(null);
   const [form, setForm] = useState<FormState>(emptyState);
   const [pending, setPending] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -48,6 +51,34 @@ export function AnalysisReviewForm({ jobId }: { jobId: string }) {
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  const hasCoordinates = form.latitude !== null && form.longitude !== null;
+
+  async function fillCoordinatesFromAddress() {
+    setMessage('');
+    setError('');
+    if (!form.address.trim()) {
+      setError('住所を入力してから緯度経度を取得してください。');
+      return;
+    }
+
+    setGeocoding(true);
+    try {
+      const response = await fetch('/api/geocode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: form.address })
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? '緯度経度の取得に失敗しました。');
+      setForm((current) => ({ ...current, latitude: payload.data.latitude, longitude: payload.data.longitude }));
+      setMessage(`緯度経度を取得しました${payload.data.matchedAddress ? `（${payload.data.matchedAddress}）` : ''}。`);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : '緯度経度の取得に失敗しました。');
+    } finally {
+      setGeocoding(false);
+    }
   }
 
   async function approve(event: React.FormEvent<HTMLFormElement>) {
@@ -78,9 +109,12 @@ export function AnalysisReviewForm({ jobId }: { jobId: string }) {
       <p>AI抽出結果を確認し、必要な修正をしてから物件として登録します。</p>
       {job ? <p>ジョブ状態: <strong>{job.status}</strong></p> : null}
       {job?.error_message ? <p className="message error-message">{job.error_message}</p> : null}
+      {!hasCoordinates ? <p className="message warning-message">緯度経度が未設定です。このまま登録すると地図にはプロットされません。</p> : null}
 
       <form className="form-grid" onSubmit={approve}>
         <label>物件名<input value={form.name} onChange={(event) => update('name', event.target.value)} required /></label>
+        <label>業務項目の登録者名<input value={form.business_item_registrant_name ?? ''} onChange={(event) => update('business_item_registrant_name', event.target.value || null)} /></label>
+        <label>業務項目の編集者名<input value={form.business_item_editor_name ?? ''} onChange={(event) => update('business_item_editor_name', event.target.value || null)} /></label>
         <label>住所<input value={form.address} onChange={(event) => update('address', event.target.value)} required /></label>
         <label>種別<input value={form.asset_type ?? ''} onChange={(event) => update('asset_type', event.target.value || null)} /></label>
         <label>価格<input type="number" value={form.price_amount_yen ?? ''} onChange={(event) => update('price_amount_yen', event.target.value ? Number(event.target.value) : null)} /></label>
@@ -93,6 +127,9 @@ export function AnalysisReviewForm({ jobId }: { jobId: string }) {
         <label>取引態様<input value={form.transaction_type ?? ''} onChange={(event) => update('transaction_type', event.target.value || null)} /></label>
         <label>緯度<input type="number" step="0.000001" value={form.latitude ?? ''} onChange={(event) => update('latitude', event.target.value ? Number(event.target.value) : null)} /></label>
         <label>経度<input type="number" step="0.000001" value={form.longitude ?? ''} onChange={(event) => update('longitude', event.target.value ? Number(event.target.value) : null)} /></label>
+        <button className="secondary-action inline-form-action" type="button" onClick={fillCoordinatesFromAddress} disabled={geocoding}>
+          <MapPin size={16} />{geocoding ? '取得中' : '住所から緯度経度を取得'}
+        </button>
         <label>公開範囲
           <select value={form.visibility} onChange={(event) => update('visibility', event.target.value as FormState['visibility'])}>
             <option value="internal">社内限定</option>
