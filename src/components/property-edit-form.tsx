@@ -32,6 +32,8 @@ export function PropertyEditForm({ propertyId }: { propertyId: string }) {
 
     const payload = {
       name: property.name,
+      business_item_registrant_name: property.business_item_registrant_name,
+      business_item_editor_name: property.business_item_editor_name,
       asset_type: property.asset_type,
       address: property.address,
       price_amount_yen: property.price_amount_yen,
@@ -75,6 +77,8 @@ export function PropertyEditForm({ propertyId }: { propertyId: string }) {
       <p>物件情報を更新すると監査ログに変更履歴が残ります。</p>
       <form className="form-grid" onSubmit={save}>
         <label>物件名<input value={property.name} onChange={(event) => update('name', event.target.value)} required /></label>
+        <label>業務項目の登録者名<input value={property.business_item_registrant_name ?? ''} onChange={(event) => update('business_item_registrant_name', event.target.value || null)} /></label>
+        <label>業務項目の編集者名<input value={property.business_item_editor_name ?? ''} onChange={(event) => update('business_item_editor_name', event.target.value || null)} /></label>
         <label>住所<input value={property.address} onChange={(event) => update('address', event.target.value)} required /></label>
         <label>種別<input value={property.asset_type ?? ''} onChange={(event) => update('asset_type', event.target.value || null)} /></label>
         <label>価格<input type="number" value={property.price_amount_yen ?? ''} onChange={(event) => update('price_amount_yen', event.target.value ? Number(event.target.value) : null)} /></label>

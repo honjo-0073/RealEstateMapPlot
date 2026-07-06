@@ -8,6 +8,8 @@ export type AnalysisJobStatus = 'queued' | 'processing' | 'review_required' | 'c
 export type Property = {
   id: string;
   source_google_sheet_row_id: string | null;
+  business_item_registrant_name: string | null;
+  business_item_editor_name: string | null;
   name: string;
   asset_type: string | null;
   address: string;

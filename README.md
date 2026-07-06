@@ -29,9 +29,10 @@
 1. Supabaseプロジェクトを作成します。
 2. `supabase/migrations/202607030001_initial_schema.sql` をSupabase SQL EditorまたはSupabase CLIで適用します。
 3. Supabase Authで Email provider を有効化します。
-4. 本番運用ではSupabase AuthのSMTPを独自SMTPに変更します。
-5. `.env.example` を参考に `.env.local` を作成します。
-6. VercelにGitHubリポジトリを連携し、同じ環境変数を設定します。
+4. Supabase Authの新規登録を有効化し、各ユーザーがログイン画面の「新規登録」からSignUpできるようにします。
+5. 本番運用ではSupabase AuthのSMTPを独自SMTPに変更します。
+6. `.env.example` を参考に `.env.local` を作成します。
+7. VercelにGitHubリポジトリを連携し、同じ環境変数を設定します。
 
 ## 必要な環境変数
 
@@ -64,14 +65,18 @@ POST /api/imports/google-sheet
 
 このAPIは、確認済みのGoogle Sheets「データシート」14件をSupabaseへ取り込み、既存Drive PDFを `property_documents` に紐づけます。`price=0` は価格不明として `price_amount_yen = null` になります。
 
-## 権限
+## 新規登録運用と権限
 
-- `admin`: 全操作、ユーザー権限管理、インポート、削除
-- `editor`: 物件作成、編集、PDFアップロード、解析承認
-- `viewer`: 社内物件を含む閲覧
-- `external_viewer`: `visibility = external` の物件のみ閲覧
+このアプリは、従来どおり各ユーザーがログイン画面の「新規登録」からSignUpする運用です。Supabase AuthのEmail providerと新規登録を有効化し、メール確認後にログインして利用します。
 
-Supabase Authで新規登録したユーザーは、初期状態では `external_viewer` です。管理者が `profiles.role` を変更して権限を付与します。
+ロールは `profiles.role` で管理します。新規登録直後のユーザーは初期値の `external_viewer` になるため、必要に応じて管理者が業務に必要な権限へ変更します。
+
+- `admin`: 全操作、ユーザー権限管理、初期インポート、物件/PDF削除、監査ログ確認
+- `editor`: 物件作成・編集、PDFアップロード、AI解析依頼、解析結果レビュー/承認
+- `viewer`: 社内物件を含む閲覧中心のメンバー
+- `external_viewer`: 新規登録直後または外部関係者向けの表示ラベル
+
+RLSはログイン済みユーザーを前提に、物件一覧、PDF参照、PDFアップロード、解析ジョブ作成、物件登録/編集に必要なデータへアクセスできるよう緩和済みです。社外共有可否は `properties.visibility` の表示/運用ラベルとして扱い、外部関係者が利用する場合は `external_viewer` を付与したうえで、共有対象データの扱いを運用で確認してください。
 
 ## 運用メモ
 

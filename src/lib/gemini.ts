@@ -50,6 +50,8 @@ async function runWithGeminiRateLimit<T>(task: () => Promise<T>): Promise<T> {
 
 export type ExtractedPropertyPayload = {
   name: string;
+  business_item_registrant_name: string | null;
+  business_item_editor_name: string | null;
   asset_type: string | null;
   address: string;
   price_amount_yen: number | null;
@@ -79,7 +81,7 @@ export async function analyzePropertyPdf(file: File): Promise<ExtractedPropertyP
     const result = await model.generateContent([
       {
         text: `不動産の物件概要PDFから仕入マップ登録用JSONを抽出してください。\n` +
-          `必ずJSONのみを返してください。キーは name, asset_type, address, price_amount_yen, price_raw_text, land_area_sqm, floor_area_sqm, zoning, coverage_ratio_raw, road_access, transaction_type, latitude, longitude, notes, visibility です。\n` +
+          `必ずJSONのみを返してください。キーは name, business_item_registrant_name, business_item_editor_name, asset_type, address, price_amount_yen, price_raw_text, land_area_sqm, floor_area_sqm, zoning, coverage_ratio_raw, road_access, transaction_type, latitude, longitude, notes, visibility です。\n` +
           `価格が0または相談の場合は price_amount_yen を null にし、元表記を price_raw_text に入れてください。visibility は通常 internal にしてください。`
       },
       {
@@ -98,6 +100,8 @@ export async function analyzePropertyPdf(file: File): Promise<ExtractedPropertyP
 function buildFallbackPayload(filename: string): ExtractedPropertyPayload {
   return {
     name: filename.replace(/\.pdf$/i, ''),
+    business_item_registrant_name: null,
+    business_item_editor_name: null,
     asset_type: '戸建/ビル',
     address: '',
     price_amount_yen: null,
@@ -118,6 +122,8 @@ function buildFallbackPayload(filename: string): ExtractedPropertyPayload {
 function normalizeExtractedPayload(payload: Partial<ExtractedPropertyPayload>): ExtractedPropertyPayload {
   return {
     name: payload.name || '名称未設定',
+    business_item_registrant_name: payload.business_item_registrant_name ?? null,
+    business_item_editor_name: payload.business_item_editor_name ?? null,
     asset_type: payload.asset_type ?? null,
     address: payload.address || '',
     price_amount_yen: payload.price_amount_yen && payload.price_amount_yen > 0 ? payload.price_amount_yen : null,
