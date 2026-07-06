@@ -4,6 +4,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-001',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '1',
     name: '京町堀2丁目プロジェクト',
     asset_type: '戸建/ビル',
@@ -27,6 +28,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-002',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '2',
     name: '梅田ロイヤルビル',
     asset_type: '戸建/ビル',
@@ -50,6 +52,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-003',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '3',
     name: 'カセンビルディング',
     asset_type: '戸建/ビル',
@@ -73,6 +76,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-004',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '4',
     name: '東大阪市金岡二丁目保育所',
     asset_type: '戸建/ビル',
@@ -96,6 +100,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-005',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '5',
     name: 'Rakuten STAY x ShaMasion大阪出来島',
     asset_type: '戸建/ビル',
@@ -119,6 +124,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-006',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '6',
     name: '白川ビルⅡ 303号室',
     asset_type: '戸建/ビル',
@@ -142,6 +148,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-007',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '7',
     name: '朝日商事オフィアスビル（朝日商事ビル）',
     asset_type: '戸建/ビル',
@@ -165,6 +172,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-008',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '8',
     name: 'GROOVE豊中レジデンス',
     asset_type: '戸建/ビル',
@@ -188,6 +196,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-009',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '9',
     name: '大和地所三宮ビル',
     asset_type: '戸建/ビル',
@@ -211,6 +220,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-010',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '10',
     name: '収益（配送センター）大東市新田西町',
     asset_type: '戸建/ビル',
@@ -234,6 +244,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-011',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '11',
     name: '四日市市諏訪栄町店舗・事務所ビル',
     asset_type: '戸建/ビル',
@@ -257,6 +268,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-012',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '12',
     name: '堺筋トラストビル',
     asset_type: '戸建/ビル',
@@ -280,6 +292,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-013',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '13',
     name: '秋葉ビル',
     asset_type: '戸建/ビル',
@@ -303,6 +316,7 @@ export const seedProperties: Property[] = [
   {
     id: 'seed-014',
     business_item_registrant_name: null,
+    business_item_editor_name: null,
     source_google_sheet_row_id: '14',
     name: 'GROOVE豊中レジデンス',
     asset_type: '戸建/ビル',
